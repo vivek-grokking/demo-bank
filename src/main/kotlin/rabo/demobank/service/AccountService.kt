@@ -5,7 +5,6 @@ import org.springframework.security.core.Authentication
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.client.HttpClientErrorException.Unauthorized
 import rabo.demobank.dto.AccountDTO
 import rabo.demobank.entity.Account
 import rabo.demobank.entity.CardType
@@ -62,6 +61,7 @@ class AccountService(val accountRepository: AccountRepository,
 
     @Transactional
     fun transferMoney(fromAccountId: Int, toAccountId: Int, amount: Double): AccountDTO {
+        checkIsUserAuthorized(fromAccountId)
         val fromAccount = accountRepository.findByIdOrNull(fromAccountId)
         val toAccount = accountRepository.findByIdOrNull(toAccountId)
         return if (fromAccount != null && toAccount != null) {

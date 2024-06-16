@@ -22,7 +22,7 @@ class SecurityConfig(private val authenticationProvider: AuthenticationProvider)
                 it.requestMatchers("/v1/auth", "/v1/auth/refresh", "/error", "/v1/user/register", "/h2-console/**",
                     "h2-console/login.do?jsessionid=**")
                     .permitAll()
-                    .requestMatchers("/v1/account/all")
+                    .requestMatchers("/v1/account/all", "v1/account/create")
                     .hasRole("ADMIN")
                     .anyRequest()
                     .fullyAuthenticated()
