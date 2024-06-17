@@ -18,7 +18,7 @@ import rabo.demobank.service.AccountService
 import rabo.demobank.service.impl.AccountServiceImpl
 
 @RestController
-@RequestMapping("v1/account")
+@RequestMapping("/v1/account")
 class AccountController(val accountService: AccountService) {
 
     @GetMapping("/all")

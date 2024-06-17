@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.test.context.support.WithMockUser
+import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import rabo.demobank.dto.AccountDTO
 import rabo.demobank.dto.WithdrawRequest
@@ -16,15 +18,15 @@ import rabo.demobank.entity.Role
 import rabo.demobank.repository.AccountRepository
 import rabo.demobank.repository.UserRepository
 import rabo.demobank.service.AccountService
-import rabo.demobank.service.UserService
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [TestSecurityConfiguration::class])
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@ActiveProfiles("test")
 @AutoConfigureWebTestClient
 class AccountControllerIntegrationTest {
 
-    @Qualifier("userServiceImpl")
+    @Qualifier("userDetailsServiceImpl")
     @Autowired
-    private lateinit var userService: UserService
+    private lateinit var userService: UserDetailsService
 
     @Autowired
     private lateinit var accountService: AccountService
@@ -37,6 +39,9 @@ class AccountControllerIntegrationTest {
 
     @Autowired
     lateinit var accountRepository: AccountRepository
+
+    @Autowired
+    lateinit var auditorAwareImpl: AuditorAwareImpl
 
     @BeforeEach
     internal fun setUp() {
@@ -53,7 +58,7 @@ class AccountControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser(username = "user1", password = "pass1", roles = ["USER"])
+    @WithMockUser
     fun testGetAllAccounts() {
         val accountDTOS = webTestClient
             .get()

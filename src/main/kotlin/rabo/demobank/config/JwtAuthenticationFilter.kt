@@ -9,12 +9,13 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.OncePerRequestFilter
 import rabo.demobank.service.TokenService
 import org.springframework.security.core.userdetails.UserDetails
+import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component
-import rabo.demobank.service.UserService
+import rabo.demobank.service.impl.UserDetailsServiceImpl
 
 @Component
-class JwtAuthenticationFilter(val userService: UserService, val tokenService: TokenService): OncePerRequestFilter() {
+class JwtAuthenticationFilter(val userService: UserDetailsServiceImpl, val tokenService: TokenService): OncePerRequestFilter() {
     override fun doFilterInternal(
         request: HttpServletRequest,
         response: HttpServletResponse,
@@ -29,7 +30,7 @@ class JwtAuthenticationFilter(val userService: UserService, val tokenService: To
         val jwtToken = authHeader!!.extractTokenValue()
         val username = tokenService.extractUserName(jwtToken)
         if (username != null && SecurityContextHolder.getContext().authentication == null) {
-            val foundUser = userService.userDetailsService().loadUserByUsername(username)
+            val foundUser = userService.loadUserByUsername(username)
             if (tokenService.isValid(jwtToken, foundUser)) {
                 updateContext(foundUser, request)
             }

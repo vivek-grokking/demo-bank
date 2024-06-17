@@ -9,12 +9,10 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import rabo.demobank.repository.UserRepository
-import rabo.demobank.service.impl.UserServiceImpl
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties::class)
@@ -24,22 +22,14 @@ class AuthConfig {
     fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun userDetailsService(userRepository: UserRepository, encoder: PasswordEncoder): UserDetailsService =
-        UserServiceImpl(userRepository, encoder).userDetailsService()
-
-    @Bean
-    fun authenticationProvider(userRepository: UserRepository): AuthenticationProvider {
+    fun authenticationProvider(userRepository: UserRepository, userDetailsService: UserDetailsService): AuthenticationProvider {
         val authProvider = DaoAuthenticationProvider()
-        authProvider.setUserDetailsService(userDetailsService(userRepository, encoder()))
+        authProvider.setUserDetailsService(userDetailsService)
         authProvider.setPasswordEncoder(encoder())
         return authProvider
     }
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration
-    ): AuthenticationManager =
-         config.authenticationManager
-
-    @Bean
-    fun securityContext(): SecurityContext = SecurityContextHolder.getContext()
+    ): AuthenticationManager = config.authenticationManager
 }

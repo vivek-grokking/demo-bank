@@ -10,21 +10,13 @@ import org.springframework.stereotype.Service
 import rabo.demobank.dto.UserResponse
 import rabo.demobank.entity.BankUser
 import rabo.demobank.repository.UserRepository
-import rabo.demobank.service.UserService
 
 @Service
-class UserServiceImpl(val userRepository: UserRepository, val encoder: PasswordEncoder): UserService {
+class UserDetailsServiceImpl(val userRepository: UserRepository, val encoder: PasswordEncoder): UserDetailsService {
 
-    override fun getUserById(id: Int): Optional<BankUser> = userRepository.findById(id)
+    fun getUserById(id: Int): Optional<BankUser> = userRepository.findById(id)
 
-    override fun userDetailsService(): UserDetailsService {
-        return UserDetailsService { username ->
-            userRepository.findUserByName(username)
-                ?.mapToUserDetails()?: throw UsernameNotFoundException("Invalid credentials !")
-        }
-    }
-
-    override fun saveUser(user: BankUser): UserResponse {
+    fun saveUser(user: BankUser): UserResponse {
         val currentUser = userRepository.findUserByName(user.name)
         if (currentUser != null) {
             return UserResponse(currentUser.id!!, currentUser.name, currentUser.role)
@@ -41,4 +33,9 @@ class UserServiceImpl(val userRepository: UserRepository, val encoder: PasswordE
             .roles(this.role.name)
             .build()
     }
+
+    override fun loadUserByUsername(username: String): UserDetails =
+        userRepository.findUserByName(username)
+            ?.mapToUserDetails()?: throw UsernameNotFoundException("Invalid credentials !")
+
 }

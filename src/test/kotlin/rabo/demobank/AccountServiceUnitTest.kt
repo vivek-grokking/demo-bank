@@ -19,13 +19,13 @@ import rabo.demobank.payment.PaymentType
 import rabo.demobank.repository.AccountRepository
 import rabo.demobank.service.AccountService
 import rabo.demobank.service.AuthorizationService
-import rabo.demobank.service.UserService
 import rabo.demobank.service.impl.AccountServiceImpl
+import rabo.demobank.service.impl.UserDetailsServiceImpl
 
 class AccountServiceUnitTest {
 
     var accountRepository = mockk<AccountRepository>()
-    var userService = mockk<UserService>()
+    var userService = mockk<UserDetailsServiceImpl>()
     var paymentGateway= mockk<PaymentGateway>()
     var authorizationService = mockk<AuthorizationService>()
     var accountService: AccountService = AccountServiceImpl(accountRepository, userService, paymentGateway, authorizationService)
@@ -101,7 +101,7 @@ class AccountServiceUnitTest {
         every { authorizationService.checkIsUserAuthorized(any()) } returns true
         every { accountRepository.findByIdOrNull(1) } returns account1
         every { accountRepository.findByIdOrNull(2) } returns account2
-        every { paymentGateway.transactionFee(transferAmount, PaymentType.DEBIT_CARD) } returns 0.0
+        every { paymentGateway.transactionFee(transferAmount, CardType.DEBIT) } returns 0.0
         every { accountRepository.saveAll(listOf(expectedAccount1, expectedAccount2)) } returns listOf(expectedAccount1, expectedAccount2)
         assertEquals(expectedAccount1.balance, accountService.transferMoney(1, 2, transferAmount).balance)
     }
@@ -121,7 +121,7 @@ class AccountServiceUnitTest {
         every { authorizationService.checkIsUserAuthorized(any()) } returns true
         every { accountRepository.findByIdOrNull(1) } returns account1
         every { accountRepository.findByIdOrNull(2) } returns account2
-        every { paymentGateway.transactionFee(transferAmount, PaymentType.DEBIT_CARD) } returns 0.0
+        every { paymentGateway.transactionFee(transferAmount, CardType.DEBIT) } returns 0.0
         every { accountRepository.saveAll(listOf(expectedAccount1, expectedAccount2)) } returns listOf(expectedAccount1, expectedAccount2)
         val exception = assertThrows<InsufficientFundsException> {
             accountService.transferMoney(1, 2, transferAmount)
@@ -144,7 +144,7 @@ class AccountServiceUnitTest {
         every { authorizationService.checkIsUserAuthorized(any()) } returns true
         every { accountRepository.findByIdOrNull(1) } returns account1
         every { accountRepository.findByIdOrNull(2) } returns account2
-        every { paymentGateway.transactionFee(transferAmount, PaymentType.CREDIT_CARD) } returns transferAmount * 0.01
+        every { paymentGateway.transactionFee(transferAmount, CardType.CREDIT) } returns transferAmount * 0.01
         every { accountRepository.saveAll(listOf(expectedAccount1, expectedAccount2)) } returns listOf(expectedAccount1, expectedAccount2)
         assertEquals(expectedAccount1.balance, accountService.transferMoney(1, 2, transferAmount).balance)
     }
