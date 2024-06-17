@@ -1,0 +1,229 @@
+{
+	"info": {
+		"_postman_id": "c664f620-ab86-4606-9945-32f8a691b927",
+		"name": "BankDemo",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "36170774"
+	},
+	"item": [
+		{
+			"name": "Create User",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\":\"user2\",\n    \"password\":\"pass1\",\n    \"role\":\"ADMIN\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/user/register",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"user",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Authenticate",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"username\": \"user1\",\n    \"password\": \"pass1\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/auth",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"auth"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Account",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTcxODY0Mjk4OSwiZXhwIjoxNzE4NjQ2NTg5fQ.QSvdKZXZUobK8szjiYu9i-eG5zx7FFe5LTdShNUDmfeN9EafD89oOXAG5EbIOBRJxYhapIm-5YBzgEy_bkyNQg",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"balance\":100.0,\n    \"cardType\":\"DEBIT\",\n    \"userId\":2\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/account/create",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"account",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Account",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}v1/account/adsa1231323",
+					"host": [
+						"{{baseUrl}}v1"
+					],
+					"path": [
+						"account",
+						"adsa1231323"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get All Accounts",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Withdraw",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTcxODYyNTgyNiwiZXhwIjoxNzE4NjI5NDI2fQ.kX8qafkHCPxfko9iGXAatYT4wFM_vNl1SbmdZQQs0H48T9vSfq6Nz8yVaZyZdU_7hk33I_WMUk_pxBzIRGK-CQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"accountId\":2,\n    \"amount\":100.0\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/account/withdraw",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"account",
+						"withdraw"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Transfer",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyMSIsImlhdCI6MTcxODU3NzMyMCwiZXhwIjoxNzE4NTgwOTIwfQ.A_VR5MZ_op6uYKXIv7CWMHjSn-ktKOS6B7IcPP6XSrFCoqxFdl__wexAs7jSlqYwYquZVSlaYW79MyhhqptrQw",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"fromAccountId\":2,\n    \"toAccountId\":1,\n    \"amount\":10,\n    \"cardType\":\"DEBIT\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/v1/account/transfer",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"v1",
+						"account",
+						"transfer"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
