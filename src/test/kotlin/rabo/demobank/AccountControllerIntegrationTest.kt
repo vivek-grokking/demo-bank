@@ -3,14 +3,20 @@ package rabo.demobank
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.test.web.reactive.server.WebTestClient
+import rabo.demobank.config.AuditConfig
+import rabo.demobank.config.AuthConfig
+import rabo.demobank.config.SecurityConfig
 import rabo.demobank.dto.AccountDTO
 import rabo.demobank.dto.WithdrawRequest
 import rabo.demobank.dto.TransactionResponse
@@ -19,9 +25,11 @@ import rabo.demobank.repository.AccountRepository
 import rabo.demobank.repository.UserRepository
 import rabo.demobank.service.AccountService
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [SecurityConfig::class, AuthConfig::class])
 @ActiveProfiles("test")
 @AutoConfigureWebTestClient
+@EnableJpaRepositories("rabo.demobank.repository")
+@ExtendWith(SpringExtension::class)
 class AccountControllerIntegrationTest {
 
     @Qualifier("userDetailsServiceImpl")
@@ -35,7 +43,7 @@ class AccountControllerIntegrationTest {
     lateinit var webTestClient: WebTestClient
 
     @Autowired
-    private lateinit var userRepository: UserRepository
+    lateinit var userRepository: UserRepository
 
     @Autowired
     lateinit var accountRepository: AccountRepository
@@ -58,7 +66,7 @@ class AccountControllerIntegrationTest {
     }
 
     @Test
-    @WithMockUser
+    @WithMockUser(value = "user2", username = "user2", password = "pass2", roles = ["ADMIN"])
     fun testGetAllAccounts() {
         val accountDTOS = webTestClient
             .get()
@@ -73,6 +81,7 @@ class AccountControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(username = "user1", password = "pass1", roles = ["USER"])
     fun testGetAccountById() {
         val accountId = 1
         val account1 = webTestClient
@@ -98,6 +107,7 @@ class AccountControllerIntegrationTest {
     }
 
     @Test
+    @WithMockUser(value = "user1", username = "user1", password = "pass1", roles = ["USER"])
     fun testWithdraw() {
         val withdrawRequest = WithdrawRequest(1, 50.0)
         val response = webTestClient

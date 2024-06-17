@@ -10,7 +10,7 @@ import rabo.demobank.AuditorAwareImpl
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider", dateTimeProviderRef = "dateTimeProvider")
-class AuditConfiguration {
+class AuditConfig {
 
     @Bean
     fun auditorProvider(): AuditorAware<String> {

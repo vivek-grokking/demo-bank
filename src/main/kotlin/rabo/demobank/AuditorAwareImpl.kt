@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component
 @Component
 class AuditorAwareImpl : AuditorAware<String> {
     override fun getCurrentAuditor(): Optional<String> {
-        val auth: Authentication = SecurityContextHolder.getContext().authentication
-        return Optional.of(auth.name);
+        //val auth: Authentication = SecurityContextHolder.getContext().authentication
+        return Optional.of("dummy_auditor");
     }
 }

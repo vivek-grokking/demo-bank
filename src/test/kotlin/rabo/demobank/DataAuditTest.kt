@@ -9,7 +9,6 @@ import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import rabo.demobank.dto.AuthenticationRequest
 import rabo.demobank.entity.Account
 import rabo.demobank.entity.BankUser
 import rabo.demobank.entity.CardType
