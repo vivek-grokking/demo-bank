@@ -9,6 +9,7 @@ import rabo.demobank.dto.UserRequest
 import rabo.demobank.dto.UserResponse
 import rabo.demobank.entity.BankUser
 import rabo.demobank.service.UserService
+import rabo.demobank.service.impl.UserServiceImpl
 
 @RestController
 @RequestMapping("/v1/user")

@@ -3,10 +3,13 @@ package rabo.demobank.config
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.authentication.AuthenticationProvider
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer
 import org.springframework.security.config.http.SessionCreationPolicy
-import org.springframework.security.web.DefaultSecurityFilterChain
+import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
 
 @Configuration
@@ -14,12 +17,17 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 class SecurityConfig(private val authenticationProvider: AuthenticationProvider) {
 
     @Bean
-    fun securityFilterChain(http: HttpSecurity, jwtAuthenticationFilter: JwtAuthenticationFilter):
-            DefaultSecurityFilterChain =
-        http
+    fun webSecurityCustomizer(): WebSecurityCustomizer {
+        return WebSecurityCustomizer { web: WebSecurity -> web.debug(false) }
+    }
+
+    @Bean
+    @Throws(Exception::class)
+    fun filterChain(http: HttpSecurity, jwtAuthenticationFilter: JwtAuthenticationFilter): SecurityFilterChain {
+        return http
             .csrf { it.disable() }
             .authorizeHttpRequests {
-                it.requestMatchers("/v1/auth", "/v1/auth/refresh", "/error", "/v1/user/register", "/h2-console/**",
+                it.requestMatchers("/v1/auth", "/error", "/v1/user/register", "/h2-console/**",
                     "h2-console/login.do?jsessionid=**")
                     .permitAll()
                     .requestMatchers("/v1/account/all", "v1/account/create")
@@ -33,6 +41,6 @@ class SecurityConfig(private val authenticationProvider: AuthenticationProvider)
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
             .build()
-
+    }
 
 }

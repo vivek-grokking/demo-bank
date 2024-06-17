@@ -16,7 +16,6 @@ import rabo.demobank.entity.CardType
 import rabo.demobank.entity.Role
 import rabo.demobank.repository.AccountRepository
 import rabo.demobank.repository.UserRepository
-import rabo.demobank.service.AuthenticationService
 
 @SpringBootTest
 @ActiveProfiles("test")

@@ -15,6 +15,7 @@ import rabo.demobank.dto.TransferRequest
 import rabo.demobank.dto.WithdrawRequest
 import rabo.demobank.dto.TransactionResponse
 import rabo.demobank.service.AccountService
+import rabo.demobank.service.impl.AccountServiceImpl
 
 @RestController
 @RequestMapping("v1/account")
@@ -55,6 +56,4 @@ class AccountController(val accountService: AccountService) {
     fun createAccount(@Valid @RequestBody accountDTO: AccountDTO): ResponseEntity<AccountDTO> {
         return ResponseEntity(accountService.createAccount(accountDTO), HttpStatus.CREATED)
     }
-
-
 }

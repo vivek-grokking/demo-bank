@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.test.context.ActiveProfiles
+import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.WebTestClient
 import rabo.demobank.dto.AccountDTO
 import rabo.demobank.dto.WithdrawRequest
@@ -18,12 +18,11 @@ import rabo.demobank.repository.UserRepository
 import rabo.demobank.service.AccountService
 import rabo.demobank.service.UserService
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles("test")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT, classes = [TestSecurityConfiguration::class])
 @AutoConfigureWebTestClient
 class AccountControllerIntegrationTest {
 
-    @Qualifier("userService")
+    @Qualifier("userServiceImpl")
     @Autowired
     private lateinit var userService: UserService
 
@@ -41,19 +40,20 @@ class AccountControllerIntegrationTest {
 
     @BeforeEach
     internal fun setUp() {
-        userRepository.deleteAll()
         accountRepository.deleteAll()
+        userRepository.deleteAll()
 
-        val user1 = userEntity("user1", Role.USER, "pass1")
-        val user2 = userEntity("user2", Role.ADMIN, "pass2")
+        var user1 = userEntity("user1", Role.USER, "pass1")
+        var user2 = userEntity("user2", Role.ADMIN, "pass2")
 
-        userService.saveUser(user1)
-        userService.saveUser(user2)
+        user1 = userRepository.save(user1)
+        user2 = userRepository.save(user2)
         accountRepository.saveAll(dummyAccountList(user1))
         accountRepository.saveAll(dummyAccountList(user2))
     }
 
     @Test
+    @WithMockUser(username = "user1", password = "pass1", roles = ["USER"])
     fun testGetAllAccounts() {
         val accountDTOS = webTestClient
             .get()
@@ -80,22 +80,21 @@ class AccountControllerIntegrationTest {
             .responseBody
         assertEquals(1, account1!!.userId)
 
-        val accountId3 = 3
-        val account3 = webTestClient
+        val accountId2 = 2
+        val account2 = webTestClient
             .get()
-            .uri("/v1/account/{accountId}", accountId3)
+            .uri("/v1/account/{accountId}", accountId2)
             .exchange()
             .expectStatus().is2xxSuccessful
             .expectBody(AccountDTO::class.java)
             .returnResult()
             .responseBody
-        assertEquals(2, account3!!.userId)
+        assertEquals(1, account2!!.userId)
     }
 
     @Test
     fun testWithdraw() {
-        val accountDto = AccountDTO(1)
-        val withdrawRequest = WithdrawRequest(accountDto, 50.0)
+        val withdrawRequest = WithdrawRequest(1, 50.0)
         val response = webTestClient
             .put()
             .uri("v1/account/withdraw")
@@ -110,8 +109,7 @@ class AccountControllerIntegrationTest {
 
     @Test
     fun testWithdrawExcessAmount() {
-        val accountDto = AccountDTO(1)
-        val withdrawRequest = WithdrawRequest(accountDto, 500.0)
+        val withdrawRequest = WithdrawRequest(1, 500.0)
         val response = webTestClient
             .put()
             .uri("v1/account/withdraw")
@@ -126,8 +124,16 @@ class AccountControllerIntegrationTest {
 
     @Test
     fun testWithdrawFromInvalidAccount() {
-        val accountDto = AccountDTO(11)
-        val withdrawRequest = WithdrawRequest(accountDto, 500.0)
+        val withdrawRequest = WithdrawRequest(11, 500.0)
+        val response1 = webTestClient
+            .put()
+            .uri("v1/account/withdraw")
+            .bodyValue(withdrawRequest)
+            .exchange()
+            .expectStatus().isBadRequest
+            .expectBody(String::class.java)
+            .returnResult()
+            .responseBody
         val response = webTestClient
             .put()
             .uri("v1/account/withdraw")
@@ -137,13 +143,13 @@ class AccountControllerIntegrationTest {
             .expectBody(String::class.java)
             .returnResult()
             .responseBody
+        println(response)
         assertEquals("Account not found for ID 11", response)
     }
 
     @Test
     fun testWithdrawInvalidRequest() {
-        val accountDto = AccountDTO(11)
-        val withdrawRequest = WithdrawRequest(accountDto, -500.0)
+        val withdrawRequest = WithdrawRequest(1, -500.0)
         val response = webTestClient
             .put()
             .uri("v1/account/withdraw")

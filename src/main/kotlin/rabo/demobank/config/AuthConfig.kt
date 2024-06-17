@@ -7,11 +7,14 @@ import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
+import org.springframework.security.core.context.SecurityContext
+import org.springframework.security.core.context.SecurityContextHolder
+import org.springframework.security.core.context.SecurityContextImpl
 import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import rabo.demobank.repository.UserRepository
-import rabo.demobank.service.UserService
+import rabo.demobank.service.impl.UserServiceImpl
 
 @Configuration
 @EnableConfigurationProperties(JwtProperties::class)
@@ -21,18 +24,22 @@ class AuthConfig {
     fun encoder(): PasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
-    fun userDetailsService(userRepository: UserRepository, encoder: PasswordEncoder) = UserService(userRepository, encoder)
+    fun userDetailsService(userRepository: UserRepository, encoder: PasswordEncoder): UserDetailsService =
+        UserServiceImpl(userRepository, encoder).userDetailsService()
 
     @Bean
-    fun authenticationProvider(userService: UserService, encoder: PasswordEncoder): AuthenticationProvider =
-        DaoAuthenticationProvider()
-            .also {
-                it.setUserDetailsService(userService)
-                it.setPasswordEncoder(encoder)
-            }
+    fun authenticationProvider(userRepository: UserRepository): AuthenticationProvider {
+        val authProvider = DaoAuthenticationProvider()
+        authProvider.setUserDetailsService(userDetailsService(userRepository, encoder()))
+        authProvider.setPasswordEncoder(encoder())
+        return authProvider
+    }
 
     @Bean
     fun authenticationManager(config: AuthenticationConfiguration
     ): AuthenticationManager =
          config.authenticationManager
+
+    @Bean
+    fun securityContext(): SecurityContext = SecurityContextHolder.getContext()
 }
